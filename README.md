@@ -29,3 +29,14 @@ Question: Which hidden environmental assumption did the wrapper remove?
 Evidence 7: Why does the SBOM contain components that you did not explicitly type in the original dependencies section?
     Maven resolve transitive dependencies, when we declare a direct dependency, that library depends on oter libraries to function and Maven automatically downloads them
 
+Evidence 8.1: Copy one relevant error line and identify the missing dependency.
+    Linha de erro: error: package com.fasterxml.jackson.databind does not exist (import ObjectMapper). Dependência em falta: com.fasterxml.jackson.core:jackson-databind, usada por ObjectMapper e TypeReference.
+
+Evidence 8.2: Compare this output with mvn dependency:tree. Did changing the build system change the application dependencies?
+    In both Maven and Gradle, jackson-databind is the only direct dependency; jackson-core and jackson-annotations are transitive (pulled in automatically). Changing the build system did not change the application's actual dependencies — only the declaration syntax and the command/format used to inspect the graph changed.
+
+Evidence 8.3: Explain what changed in the JAR after the runtime dependencies were included.
+    Before, the default JAR only contained FleetCheck's own classes, with no Main-Class, so java -jar failed. After the jar { ... } block, Gradle merges the runtimeClasspath (via zipTree) into the JAR and writes Main-Class: pt.upt.fleetcheck.App into the manifest — turning it into a self-contained, executable "fat JAR" that runs with java -jar with no extra setup.
+
+Question: Which hidden environmental assumption did the Gradle Wrapper remove?
+    It removes the assumption that Gradle is already installed on the machine, in the right version.
